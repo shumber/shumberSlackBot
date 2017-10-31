@@ -24,16 +24,30 @@ if sc.rtm_connect(): #connect to slack
         userList[user['id']]['away'] = 0
         userList[user['id']]['total'] = 0
     while True:
-        event = sc.rtm_read()
+        events = sc.rtm_read()
         #print(event)
-        if event['type'] == "presence_change":
-            handlePresenceChange(event)
-        time.sleep(1)
+        for event in events:
+            if event['type'] == "presence_change":
+                handlePresenceChange(event)
+            if event['type'] == "message:":
+                if event['text'] == "/userRPG"
+                    handleMessage(event)
+            time.sleep(1)
 else:
     print("Connection Failed")
 
 def handlePresenceChange(event):
     print("Status change for ", event['user'])
+    if event['presence'] == 'active':
+        userlist[event['user']]['active'] = time.time()
+    if event['presence'] == 'away':
+        userlist[event['user']]['away'] = time.time()
+        userlist[event['user']]['total'] += (userlist[event['user']]['away'] - userlist[event['user']]['active'])
+
+def handleMessage(event):
+    for key, value in userList.items():
+        print("user: ", key, "Total Time: " value['total'])
+
 
 
 #create list of users
