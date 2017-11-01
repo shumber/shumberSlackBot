@@ -26,7 +26,7 @@ if sc.rtm_connect(): #connect to slack
     while True:
         events = sc.rtm_read()
         #print(event)
-        for event in events
+        for event in events:
              if event['type'] == "presence_change":
                 handlePresenceChange(event)
              if event['type'] == "message":
@@ -46,7 +46,7 @@ if event['presence']='away'
 
 def handlemessage(event):
 for key, value in userList.items():
-print ('user', key,"Total Time" value['total'])
+print ('user',"Total Time" value['total'])
 #create list of users
 '''
 if sc.rtm_connect():
