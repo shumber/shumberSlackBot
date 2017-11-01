@@ -1,12 +1,13 @@
 import os
+import time
 from slackclient import SlackClient
 from dotenv import load_dotenv
-import time
+
 
 load_dotenv('.env')
 slack_token = os.environ["SLACK_API_TOKEN"]
 sc = SlackClient(slack_token)
-
+userList = {}
 '''
 sc.api_call(
   "chat.postMessage",
@@ -27,7 +28,7 @@ def handle_message(event):
     for key, value in userList.items():
         print('user'+"Total Time" + value['total'])
 
-userList = {}
+
 if sc.rtm_connect(): #connect to slack 
     api_call = sc.api_call("users.list")
     users = api_call.get('members')
@@ -43,7 +44,7 @@ if sc.rtm_connect(): #connect to slack
              if event['type'] == "presence_change":
                 handlePresenceChange(event)
              if event['type'] == "message":
-                 if event['text'] =="/userRPG":
+                 if event['text'] =="userRPG":
                     handlemessage(event)
         time.sleep(1)
 else:
