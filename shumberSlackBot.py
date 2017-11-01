@@ -34,8 +34,8 @@ if sc.rtm_connect(): #connect to slack
     api_call = sc.api_call("users.list")
     users = api_call.get('members')
     chan="#bot_playground"
-    greeting=”Hello! Nice to meet you. Type Score to see your RPG total”
-    print sc.api_call(“chat.postMessage”, as_user=”true:”, channel=chan, text=greeting)
+    greeting="Hello!" ##Nice to meet you. Type Score to see your RPG total
+    sc.api_call("chat.postMessage", channel=chan, text=greeting)
     for user in users:
         userList[user['id']] = {}
         userList[user['id']]['active'] = 0
