@@ -1,12 +1,12 @@
 import os
-import time
 from slackclient import SlackClient
 from dotenv import load_dotenv
+import time
 
 load_dotenv('.env')
-
-slack_token = os.environ['SLACK_API_TOKEN']
+slack_token = os.environ["SLACK_API_TOKEN"]
 sc = SlackClient(slack_token)
+
 '''
 sc.api_call(
   "chat.postMessage",
@@ -14,6 +14,19 @@ sc.api_call(
   text="Hello from scottSlackBot! :tada:"
 )
 '''
+events = sc.rtm_read()
+def handle_Presence_Change(event):
+    print("Status change for ", event['user'])
+if event['presence']=="active":
+    user.event[event['user']]['active']=time.time
+if event['presence']=="away":
+    user.event[event['user']]['away']=time.time
+    user.event[event['user']]['total'] += user.event[event['user']]['away'] - user.event[event['user']]['active']
+
+def handle_message(event):
+    for key, value in userList.items():
+        print('user'+"Total Time" + value['total'])
+
 userList = {}
 if sc.rtm_connect(): #connect to slack 
     api_call = sc.api_call("users.list")
@@ -36,17 +49,6 @@ if sc.rtm_connect(): #connect to slack
 else:
     print("Connection Failed")
 
-def handlePresenceChange(event):
-    print("Status change for ", event['user'])
-if event['presence']=="active":
-    user.event[event['user']]['active']=time.time
-if event['presence']=="away":
-    user.event[event['user']]['away']=time.time
-    user.event[event['user']]['total'] += user.event[event['user']]['away'] - user.event[event['user']]['active']
-
-def handlemessage(event):
-    for key, value in userList.items():
-        print('user'+"Total Time" + value['total'])
 #create list of users
 '''
 if sc.rtm_connect():
