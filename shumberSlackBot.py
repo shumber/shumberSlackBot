@@ -27,12 +27,15 @@ def handlePresenceChange(event):
 
 def handle_message(event):
     for key, value in userList.items():
-        print('user: ', key, "Total Time", value['total'])
+       print('user: ', key, "Total Time", value['total'])
 
 
 if sc.rtm_connect(): #connect to slack 
     api_call = sc.api_call("users.list")
     users = api_call.get('members')
+    chan="#bot_playground"
+    greeting=”Hello! Nice to meet you. Type Score to see your RPG total”
+    print sc.api_call(“chat.postMessage”, as_user=”true:”, channel=chan, text=greeting)
     for user in users:
         userList[user['id']] = {}
         userList[user['id']]['active'] = 0
@@ -45,7 +48,7 @@ if sc.rtm_connect(): #connect to slack
             if event['type'] == "presence_change":
                 handlePresenceChange(event)
             if event['type'] == "message:":
-                if event['text'] == "/userRPG":
+                if event['text'] == "Score":
                     handleMessage(event)
             time.sleep(1)
 else:
