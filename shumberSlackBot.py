@@ -7,6 +7,7 @@ load_dotenv('keys.env')
 
 slack_token = os.environ['SLACK_API_TOKEN']
 sc = SlackClient(slack_token)
+userList = {}
 '''
 sc.api_call(
   "chat.postMessage",
@@ -14,7 +15,20 @@ sc.api_call(
   text="Hello from scottSlackBot! :tada:"
 )
 '''
-userList = {}
+def handlePresenceChange(event):
+    print("Status change for ", event['user'])
+    if event['presence'] == 'active':
+        userList[event['user']]['active'] = time.time()
+    if event['presence'] == 'away':
+        userList[event['user']]['away'] = time.time()
+        userList[event['user']]['total'] += (userList[event['user']]['away'] - userList[event['user']]['active'])
+        print(userList[event['user']]['total'])
+
+def handleMessage(event):
+    for key, value in userList.items():
+        print("user: ", key, "Total Time: ", value['total'])
+
+
 if sc.rtm_connect(): #connect to slack 
     api_call = sc.api_call("users.list")
     users = api_call.get('members')
@@ -25,28 +39,18 @@ if sc.rtm_connect(): #connect to slack
         userList[user['id']]['total'] = 0
     while True:
         events = sc.rtm_read()
-        #print(event)
+        print(events)
         for event in events:
             if event['type'] == "presence_change":
                 handlePresenceChange(event)
             if event['type'] == "message:":
-                if event['text'] == "/userRPG"
+                if event['text'] == "/userRPG":
                     handleMessage(event)
             time.sleep(1)
 else:
     print("Connection Failed")
 
-def handlePresenceChange(event):
-    print("Status change for ", event['user'])
-    if event['presence'] == 'active':
-        userlist[event['user']]['active'] = time.time()
-    if event['presence'] == 'away':
-        userlist[event['user']]['away'] = time.time()
-        userlist[event['user']]['total'] += (userlist[event['user']]['away'] - userlist[event['user']]['active'])
 
-def handleMessage(event):
-    for key, value in userList.items():
-        print("user: ", key, "Total Time: " value['total'])
 
 
 
