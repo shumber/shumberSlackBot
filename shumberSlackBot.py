@@ -16,18 +16,18 @@ sc.api_call(
 )
 '''
 
-def handle_Presence_Change(event):
+def handlePresenceChange(event):
     print("Status change for ", event['user'])
-    if event['presence']=="active":
-        user.event[event['user']]['active']=time.time()
-    if event['presence']=="away":
-        user.event[event['user']]['away']=time.time()
-        user.event[event['user']]['total'] += user.event[event['user']]['away'] - user.event[event['user']]['active']
+    if event['presence'] == 'active':
+        userList[event['user']]['active'] = time.time()
+    if event['presence'] == 'away':
+        userList[event['user']]['away'] = time.time()
+        userList[event['user']]['total'] += (userList[event['user']]['away'] - userList[event['user']]['active'])
         print(userList[event['user']]['total'])
 
 def handle_message(event):
     for key, value in userList.items():
-        print('user'+"Total Time" + value['total'])
+        print('user: ', key, "Total Time", value['total'])
 
 
 if sc.rtm_connect(): #connect to slack 
