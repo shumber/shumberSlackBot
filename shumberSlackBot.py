@@ -14,7 +14,7 @@ sc.api_call(
   text="Hello from scottSlackBot! :tada:"
 )
 '''
-events = sc.rtm_read()
+
 def handle_Presence_Change(event):
     print("Status change for ", event['user'])
 if event['presence']=="active":
