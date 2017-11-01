@@ -18,11 +18,12 @@ sc.api_call(
 
 def handle_Presence_Change(event):
     print("Status change for ", event['user'])
-if event['presence']=="active":
-    user.event[event['user']]['active']=time.time
-if event['presence']=="away":
-    user.event[event['user']]['away']=time.time
-    user.event[event['user']]['total'] += user.event[event['user']]['away'] - user.event[event['user']]['active']
+    if event['presence']=="active":
+        user.event[event['user']]['active']=time.time()
+    if event['presence']=="away":
+        user.event[event['user']]['away']=time.time()
+        user.event[event['user']]['total'] += user.event[event['user']]['away'] - user.event[event['user']]['active']
+        print(userList[event['user']]['total'])
 
 def handle_message(event):
     for key, value in userList.items():
@@ -39,14 +40,14 @@ if sc.rtm_connect(): #connect to slack
         userList[user['id']]['total'] = 0
     while True:
         events = sc.rtm_read()
-        #print(event)
+        print(events)
         for event in events:
-             if event['type'] == "presence_change":
+            if event['type'] == "presence_change":
                 handlePresenceChange(event)
-             if event['type'] == "message":
-                 if event['text'] =="userRPG":
-                    handlemessage(event)
-        time.sleep(1)
+            if event['type'] == "message:":
+                if event['text'] == "/userRPG":
+                    handleMessage(event)
+            time.sleep(1)
 else:
     print("Connection Failed")
 
@@ -65,4 +66,4 @@ if sc.rtm_connect():
 
 
 #determin when a user joins and leaves a channel
-#create a command to print list of users and time in channel
+#create a command to print list of users and time in 
