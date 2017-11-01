@@ -3,7 +3,7 @@ import time
 from slackclient import SlackClient
 from dotenv import load_dotenv
 
-load_dotenv('keys.env')
+load_dotenv('.env')
 
 slack_token = os.environ['SLACK_API_TOKEN']
 sc = SlackClient(slack_token)
