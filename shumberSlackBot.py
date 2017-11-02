@@ -63,9 +63,9 @@ if sc.rtm_connect(): #connect to slack
                 handlePresenceChange(event)
             elif event['type'] == "message":
                 print("Message Recived")
-                if event['text'] == "Post":
-                    print("Message Sent")
+                if event['text'] == "TheScore":
                     handlemessage(event)
+                    print("Message Sent")
         time.sleep(1)
 else:
     print("Connection Failed")
