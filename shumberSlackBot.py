@@ -26,18 +26,12 @@ def handlemessage(event):
     print(event)
     con="The Parties score for:"
     for key, value in userList.items():
-        print("26")
         if value['isBot'] == 0:
-            print("27")
             if value['activeFlag'] == 1:
-                print("28")
-                level = time.time() - userList[event['user']]['active'] + userList[event['user']]['total'] 
-                print("29") #the score at the time of the message 
-            else: print("30")
-            level = value['total']
-            print("31")
-            con +=("\n "+ value['name']+ " is " +str(int(level)))
-            print("32")
+                level = time.time() - userList[event['user']]['active'] + userList[event['user']]['total'] #the score at the time of the message 
+            else: 
+                level = value['total']
+            con +=("\n "+ value['realname']+ " is " +str(int(level)))
     
     sc.api_call(
         "chat.postMessage", 
@@ -46,29 +40,12 @@ def handlemessage(event):
         ) ##Sumting the score and message
     print(event['text'])  
     print("Message from", event['user'], " - ", userList[event['user']]['name'], event['text'])
-      
-
-
-    '''
-    text = "The Parties score for:"
-    for key, value in userList.items():
-        if value['isBot'] == 0:
-            if value['activeFlag'] == 1: #if a user is active, we want to include their current active time in score without having to wait for a status change to away.
-                totalScore = time.time() - userList[event['user']]['active']
-            else:
-                totalScore = value['total'] #if not active, we just used the stored total score.
-            text += ("\nuser:" + value['name'] + " - Score: " + str(int(totalScore)))            
-    sc.api_call(
-        "chat.postMessage",
-        channel="#bot_playground",
-        text=text
-        )
-    '''
 
 
 if sc.rtm_connect(): #connect to slack 
     api_call = sc.api_call("users.list", presence="true")
     users = api_call.get('members')
+    realname=api_call.get('real_name')
     ##greeting="Here we go" ##Nice to meet you. Type Score to see your RPG total
     ##sc.api_call("chat.postMessage", channel="#bot_playground", text=greeting, )
     for user in users:
