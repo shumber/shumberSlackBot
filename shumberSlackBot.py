@@ -19,7 +19,7 @@ def handlePresenceChange(event): #Log the users score as they enter and leave th
         userList[event['user']]['away'] = time.time()
         userList[user['id']]['activeFlag'] = 0
         userList[event['user']]['total'] = userList[event['user']]['total'] + (userList[event['user']]['away'] - userList[event['user']]['active'])
-        print(userList[event['user']]['total'])
+       
 
 def handlemessage(event):
     print("Message from", event['user'], " - ", userList[event['user']]['name'])
@@ -37,7 +37,7 @@ if sc.rtm_connect(): #connect to slack
     api_call = sc.api_call("users.list", presence="true")
     users = api_call.get('members')
     ##greeting="Here we go" ##Nice to meet you. Type Score to see your RPG total
-    ##sc.api_call("chat.postMessage", channel="#bot_playground", text=greeting)
+    ##sc.api_call("chat.postMessage", channel="#bot_playground", text=greeting, )
     for user in users:
         userList[user['id']] = {}
         userList[user['id']]['active'] = 0.0
@@ -53,14 +53,16 @@ if sc.rtm_connect(): #connect to slack
                     if user['presence']=="active":
                         userList[user['id']]['active'] = time.time()
                         userList[user['id']]['activeFlag'] = 1
+    
     while True:
         events = sc.rtm_read()
         print(events)
         for event in events:
             if event['type'] == "presence_change":
+                print("Activity")
                 handlePresenceChange(event)
-            elif event['type'] == "message":
-                if event['text'] == "Post":
+            if event["type"] == "message" and event['text'] == "Post":
+                    print("Message Recived")
                     handlemessage(event)
         time.sleep(1)
 else:
