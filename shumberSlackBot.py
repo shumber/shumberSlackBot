@@ -24,7 +24,7 @@ def handlePresenceChange(event): #Log the users score as they enter and leave th
 def handlemessage(event):
     print("Message from", event['user'], " - ", userList[event['user']]['name'])
     for key, value in userList.items():
-        if value['isBot'] == 1:
+        if value['isBot'] == 0:
             if value['activeFlag'] == 1:
                 level = time.time() - userList[event['user']]['active'] + value['total']  #the score at the time of the message 
             else: 
@@ -45,11 +45,11 @@ if sc.rtm_connect(): #connect to slack
         userList[user['id']]['total'] = 0.0
         userList[user['id']]['name'] = user['name']
         userList[user['id']]['activeFlag'] = 0
-        userList[user['id']]['isBot'] = 0
+        userList[user['id']]['isBot'] = 1
         if user['id'] != "USLACKBOT":
             if user['deleted'] == False:
                 if user['is_bot']==False:
-                    userList[user['id']]['isBot']= 1
+                    userList[user['id']]['isBot']= 0
                     if user['presence']=="active":
                         userList[user['id']]['active'] = time.time()
                         userList[user['id']]['activeFlag'] = 1
@@ -61,8 +61,10 @@ if sc.rtm_connect(): #connect to slack
             if event['type'] == "presence_change":
                 print("Activity")
                 handlePresenceChange(event)
-            if event["type"] == "message" and event['text'] == "Post":
-                    print("Message Recived")
+            elif event['type'] == "message":
+                print("Message Recived")
+                if event['text'] == "Post":
+                    print("Message Sent")
                     handlemessage(event)
         time.sleep(1)
 else:
