@@ -10,48 +10,51 @@ sc = SlackClient(slack_token)
 userList = {}
 
 def handlePresenceChange(event): #Log the users score as they enter and leave the chat
-    if event['presence'] == 'active':
+   if event['presence'] == 'active':
+        print("Status Active for ", event['user'], " - ", userList[event['user']]['name'])
         userList[event['user']]['active'] = time.time()
-        userList[user['id']]['activeFlag'] = 1
-    if event['presence'] == 'away':
+        userList[event['user']]['activeFlag'] = 1 #Flag set when presence changes to active
+   if event['presence'] == 'away':
+        print("Status Away for ", event['user'], " - ", userList[event['user']]['name'])
         userList[event['user']]['away'] = time.time()
-        userList[event['user']]['total'] += (userList[event['user']]['away'] - userList[event['user']]['active'])
-        userList[user['id']]['activeFlag'] = 0
-        print(userList[event['user']]['total'])
+        userList[event['user']]['activeFlag'] = 0 #Flag reset when presence changes to away
+        userList[event['user']]['total'] = userList[event['user']]['total'] + (userList[event['user']]['away'] - userList[event['user']]['active'])
+
 
 def handle_message(event):
+    text = "RPG User scores:"
     for key, value in userList.items():
-        if value['isBot'] == 1:
-            if value['activeFlag'] == 1:
-                start = time.time() - userList[event['user']]['active']
-                level = start + + value['total']  #the score at the time of the message 
-            else: 
-                level = value['total']
-            con =( " The Parties score for: " + "\n "+ value['name']+ "is" +str(int(level)))
-    sc.api_call('chat.postMessages', channel="#bot_playground", text=con) ##Sumiting the score and message
+        if value['isBot'] == 0:
+            if value['activeFlag'] == 1: #if a user is active, we want to include their current active time in score without having to wait for a status change to away.
+                totalScore = time.time() - userList[event['user']]['active']
+            else:
+                totalScore = value['total'] #if not active, we just used the stored total score.
+            text += ("\nuser:" + value['name'] + " - Score: " + str(int(totalScore)))            
+    sc.api_call(
+        "chat.postMessage",
+        channel="#bot_playground",
+        text=text
+        )
 
 
 if sc.rtm_connect(): #connect to slack 
-    api_call = sc.api_call("users.list", presence="true")
+  api_call = sc.api_call("users.list", presence="true")
     users = api_call.get('members')
-    chan="#bot_playground"
-    ##greeting="Here we go" ##Nice to meet you. Type Score to see your RPG total
-    ##sc.api_call("chat.postMessage", channel=chan, text=greeting)
     for user in users:
         userList[user['id']] = {}
         userList[user['id']]['active'] = 0.0
         userList[user['id']]['away'] = 0.0
         userList[user['id']]['total'] = 0.0
         userList[user['id']]['name'] = user['name']
-        userList[user['id']]['activeFlag'] = 0
-        userList[user['id']]['isBot'] = 0
+        userList[user['id']]['activeFlag'] = 0 #indicates if user is currently active
+        userList[user['id']]['isBot'] = 1 #bot flag
         if user['id'] != "USLACKBOT":
-            if user['deleted'] == False:
-                if user['is_bot']==False:
-                    userList[user['id']]['isBot']= 1
-                    if user['presence']=="active":
+            if user['deleted'] == False: #Ignore deleted users
+                if user['is_bot'] == False: #Ignore bots
+                    userList[user['id']]['isBot'] = 0 #any users at this point are not bots
+                    if user['presence'] == "active": #if user is active, we want to set their active time without having to wait for a presence change.
                         userList[user['id']]['active'] = time.time()
-                        userList[user['id']]['activeFlag'] = 1
+                        userList[user['id']]['activeFlag'] = 1 
 
     while True:
         events = sc.rtm_read()
