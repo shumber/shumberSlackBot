@@ -23,7 +23,8 @@ def handle_message(event):
     for key, value in userList.items():
         if value['isBot'] == 1:
             if value['activeFlag'] == 1:
-                level = (time.time() - userList[event['user']]['active']) + value['total'] #the score at the time of the message 
+                start = time.time() - userList[event['user']]['active']
+                level = start + + value['total']  #the score at the time of the message 
             else: 
                 level = value['total']
             con =( " The Parties score for: " + "\n "+ value['name']+ "is" +str(int(level)))
