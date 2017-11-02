@@ -9,6 +9,7 @@ slack_token = os.environ["SLACK_API_TOKEN"]
 sc = SlackClient(slack_token)
 userList = {}
 
+
 def handlePresenceChange(event): #Log the users score as they enter and leave the chat
     if event['presence'] == 'active':
         print("Status Active for ", event['user'], " - ", userList[event['user']]['name'])
@@ -22,20 +23,30 @@ def handlePresenceChange(event): #Log the users score as they enter and leave th
        
 
 def handlemessage(event):
-    print("Message from", event['user'], " - ", userList[event['user']]['name'], event['text'])
+    print(event)
+    con="The Parties score for:"
     for key, value in userList.items():
+        print("26")
         if value['isBot'] == 0:
+            print("27")
             if value['activeFlag'] == 1:
-                level = time.time() - userList[event['user']]['active'] + userList[event['user']]['total']  #the score at the time of the message 
-            else: 
-                level = value['total']
-            con =( "The Parties score for: " + "\n "+ value['name']+ "is" +str(int(level)))
+                print("28")
+                level = time.time() - userList[event['user']]['active'] + userList[event['user']]['total'] 
+                print("29") #the score at the time of the message 
+            else: print("30")
+            level = value['total']
+            print("31")
+            con +=("\n "+ value['name']+ " is " +str(int(level)))
+            print("32")
+    
     sc.api_call(
-        "chat.postMessages", 
+        "chat.postMessage", 
         channel="#bot_playground",
         text=con
-        ) ##Sumiting the score and message
-    print(event['text'])    
+        ) ##Sumting the score and message
+    print(event['text'])  
+    print("Message from", event['user'], " - ", userList[event['user']]['name'], event['text'])
+      
 
 
     '''
