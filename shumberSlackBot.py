@@ -22,14 +22,24 @@ def handlePresenceChange(event):
 
 
 def handleMessage(event):
-    text = "RPG User scores:"
+    text = "Hi, " + userList[event['user']]['name'] + "! The current RPG User scores are:"
     for key, value in userList.items():
         if value['isBot'] == 0:
             if value['activeFlag'] == 1: #if a user is active, we want to include their current active time in score without having to wait for a status change to away.
                 totalScore = time.time() - userList[event['user']]['active']
             else:
                 totalScore = value['total'] #if not active, we just used the stored total score.
-            text += ("\nuser:" + value['name'] + " - Score: " + str(int(totalScore)))            
+            text += ("\n" + value['name'] + " - Score: " + str(int(totalScore)))            
+    sc.api_call(
+        "chat.postMessage",
+        channel="#bot_playground",
+        text=text
+        )
+
+def botHelp(event):
+    text = "Hi, " + userList[event['user']]['name'] + "! I can help you with the following commands:"
+    text += "\n   RPGScore"
+    text += "\n   help"
     sc.api_call(
         "chat.postMessage",
         channel="#bot_playground",
@@ -45,7 +55,7 @@ if sc.rtm_connect(): #connect to slack
         userList[user['id']]['active'] = 0.0
         userList[user['id']]['away'] = 0.0
         userList[user['id']]['total'] = 0.0
-        userList[user['id']]['name'] = user['name']
+        userList[user['id']]['name'] = user['real_name']
         userList[user['id']]['activeFlag'] = 0 #indicates if user is currently active
         userList[user['id']]['isBot'] = 1 #bot flag
         if user['id'] != "USLACKBOT":
@@ -64,8 +74,13 @@ if sc.rtm_connect(): #connect to slack
             if event['type'] == "presence_change":
                 handlePresenceChange(event)
             elif event['type'] == "message":
-                if event['text'] == "RPGScore":
-                    handleMessage(event)
+                if "<@U7SD52QJV>" in event['text']:
+                    if event['text'] == "<@U7SD52QJV> RPGScore":
+                        handleMessage(event)
+                    elif "?" in event['text']:
+                        botHelp(event)
+                    elif "help" in event['text']:
+                        botHelp(event)
         time.sleep(1)
 else:
     print("Connection Failed")
