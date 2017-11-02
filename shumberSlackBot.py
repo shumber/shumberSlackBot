@@ -37,7 +37,7 @@ if sc.rtm_connect(): #connect to slack
     api_call = sc.api_call("users.list")
     users = api_call.get('members')
     chan="#bot_playground"
-    greeting="Hello!" ##Nice to meet you. Type Score to see your RPG total
+    greeting="Not going to do it pal" ##Nice to meet you. Type Score to see your RPG total
     sc.api_call("chat.postMessage", channel=chan, text=greeting)
     for user in users:
         userList[user['id']] = {}
@@ -52,7 +52,7 @@ if sc.rtm_connect(): #connect to slack
                 handlePresenceChange(event)
             if event['type'] == "message:":
                 text = event['text']
-                if 'Score' in text:
+                if 'point' in text:
                     handleMessage(event)
             time.sleep(1)
 else:
