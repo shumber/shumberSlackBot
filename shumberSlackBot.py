@@ -2,7 +2,9 @@ import os
 import time
 from slackclient import SlackClient
 from dotenv import load_dotenv
-
+import logging
+import pickle
+import copy
 
 load_dotenv('.env')
 slack_token = os.environ["SLACK_API_TOKEN"]
@@ -31,7 +33,7 @@ def handlemessage(event):
                 level = time.time() - userList[event['user']]['active'] + userList[event['user']]['total'] #the score at the time of the message 
             else: 
                 level = value['total']
-            con +=("\n "+ value['realname']+ " is " +str(int(level)))
+            con +=("\n "+ value['name']+ " is " +str(int(level)))
     
     sc.api_call(
         "chat.postMessage", 
@@ -41,11 +43,18 @@ def handlemessage(event):
     print(event['text'])  
     print("Message from", event['user'], " - ", userList[event['user']]['name'], event['text'])
 
+def MyLevel(event):
+    level = time.time() - userList[event['user']]['active'] + userList[event['user']]['total'] #the score at the time of the message 
+    text=(userList[event['user']]['name']+ " your score is " +str(int(level)))
+    sc.api_call(
+            "chat.postMessage", 
+            channel="#bot_playground",
+            text=text
+            )
 
 if sc.rtm_connect(): #connect to slack 
     api_call = sc.api_call("users.list", presence="true")
     users = api_call.get('members')
-    realname=api_call.get('real_name')
     ##greeting="Here we go" ##Nice to meet you. Type Score to see your RPG total
     ##sc.api_call("chat.postMessage", channel="#bot_playground", text=greeting, )
     for user in users:
@@ -53,7 +62,7 @@ if sc.rtm_connect(): #connect to slack
         userList[user['id']]['active'] = 0.0
         userList[user['id']]['away'] = 0.0
         userList[user['id']]['total'] = 0.0
-        userList[user['id']]['name'] = user['name']
+        userList[user['id']]['name'] = user['profile']['real_name']
         userList[user['id']]['activeFlag'] = 0
         userList[user['id']]['isBot'] = 1
         if user['id'] != "USLACKBOT":
@@ -76,6 +85,8 @@ if sc.rtm_connect(): #connect to slack
                 if event['text'] == "TheScore":
                     handlemessage(event)
                     print("Message Sent")
+                if event['text'] =="MyLevel":
+                    MyLevel(event)
         time.sleep(1)
 else:
     print("Connection Failed")
