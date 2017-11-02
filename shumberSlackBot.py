@@ -3,25 +3,25 @@ import time
 from slackclient import SlackClient
 from dotenv import load_dotenv
 
+load_dotenv('keys.env')
 
-load_dotenv('.env')
-slack_token = os.environ["SLACK_API_TOKEN"]
+slack_token = os.environ['SLACK_API_TOKEN']
 sc = SlackClient(slack_token)
 userList = {}
 
-def handlePresenceChange(event): #Log the users score as they enter and leave the chat
-   if event['presence'] == 'active':
+def handlePresenceChange(event):
+    if event['presence'] == 'active':
         print("Status Active for ", event['user'], " - ", userList[event['user']]['name'])
         userList[event['user']]['active'] = time.time()
         userList[event['user']]['activeFlag'] = 1 #Flag set when presence changes to active
-   if event['presence'] == 'away':
+    if event['presence'] == 'away':
         print("Status Away for ", event['user'], " - ", userList[event['user']]['name'])
         userList[event['user']]['away'] = time.time()
         userList[event['user']]['activeFlag'] = 0 #Flag reset when presence changes to away
         userList[event['user']]['total'] = userList[event['user']]['total'] + (userList[event['user']]['away'] - userList[event['user']]['active'])
 
 
-def handle_message(event):
+def handleMessage(event):
     text = "RPG User scores:"
     for key, value in userList.items():
         if value['isBot'] == 0:
@@ -38,7 +38,7 @@ def handle_message(event):
 
 
 if sc.rtm_connect(): #connect to slack 
-  api_call = sc.api_call("users.list", presence="true")
+    api_call = sc.api_call("users.list", presence="true")
     users = api_call.get('members')
     for user in users:
         userList[user['id']] = {}
@@ -56,6 +56,7 @@ if sc.rtm_connect(): #connect to slack
                         userList[user['id']]['active'] = time.time()
                         userList[user['id']]['activeFlag'] = 1 
 
+    #print(userList)    
     while True:
         events = sc.rtm_read()
         print(events)
@@ -64,7 +65,7 @@ if sc.rtm_connect(): #connect to slack
                 handlePresenceChange(event)
             elif event['type'] == "message":
                 if event['text'] == "Post":
-                    handle_message(event)
+                    handleMessage(event)
         time.sleep(1)
 else:
     print("Connection Failed")
