@@ -37,20 +37,23 @@ def handlemessage(event):
         ) ##Sumiting the score and message
     print(event['text'])    
 
-'''
+
+    '''
+    text = "The Parties score for:"
     for key, value in userList.items():
         if value['isBot'] == 0:
             if value['activeFlag'] == 1: #if a user is active, we want to include their current active time in score without having to wait for a status change to away.
-                totalScore = time.time() - userList[event['user']]['active'] + value['total']
+                totalScore = time.time() - userList[event['user']]['active']
             else:
                 totalScore = value['total'] #if not active, we just used the stored total score.
-            text = ("RPG User scores:"+"\nuser:" + value['name'] + " - Score: " + str(int(totalScore)))            
+            text += ("\nuser:" + value['name'] + " - Score: " + str(int(totalScore)))            
     sc.api_call(
         "chat.postMessage",
         channel="#bot_playground",
         text=text
         )
-'''    
+    '''
+
 
 if sc.rtm_connect(): #connect to slack 
     api_call = sc.api_call("users.list", presence="true")
