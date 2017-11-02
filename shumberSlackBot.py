@@ -28,9 +28,8 @@ def handlePresenceChange(event): #Log the users score as they enter and leave th
 def handle_message(event):
     userList[event['user']]['text'] = time.time() ## The time of the message sent
     chan="#bot_playground"
-    x = userList[event['user']]['text'] - userList[event['user']]['active'] + userList[event['user']]['total'] + 0 #the score at the time of the message
-    level = "Your curent point number is " + x 
-    sc.api_call('chat.postMessages', channel=chan, text=level) ##Sumiting the score and message
+    x = userList[event['user']]['text'] - userList[event['user']]['active'] + userList[event['user']]['total'] + 0 #the score at the time of the message 
+    sc.api_call('chat.postMessages', channel=chan, text=x) ##Sumiting the score and message
 
 
 if sc.rtm_connect(): #connect to slack 
