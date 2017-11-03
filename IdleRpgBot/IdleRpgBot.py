@@ -6,12 +6,21 @@ import pickle
 import copy
 
 class IdleRpgBot():
-    def __init__(self, slack_token, active_channel_name):
+    def __init__(self, slack_token, active_channel_name, db_filename = "users.db"):
         self.slack_token = slack_token
         self.active_channel_name = active_channel_name
         self.sc = SlackClient(slack_token)
         self.userList = {}
 
+    def save(self):
+        current_users = copy.deepcopy(self.users)
+        with open(self.fb_filename, 'wb') as db_file:
+            pickle.dump(current_users, db_file, protocol=pickle.HIGHEST_PROTOCOL)
+    
+    def load(self):
+        if os.path.isfile(self.fb_filename):
+            with open(self.fb_filename, 'rb') as db_file:
+                self._users = pickle.load(db_file)
 
     def handlePresenceChange(self, event, user): #Log the users score as they enter and leave the chat
         if event['presence'] == 'active':
@@ -23,6 +32,7 @@ class IdleRpgBot():
             self.userList[event['user']]['away'] = time.time()
             self.userList[user['id']]['activeFlag'] = 0
             self.userList[event['user']]['total'] = self.userList[event['user']]['total'] + (self.userList[event['user']]['away'] - self.userList[event['user']]['active'])
+        self.load()
        
 
     def handlemessage(self, event):
@@ -42,6 +52,7 @@ class IdleRpgBot():
             ) ##Sumting the score and message
         print(event['text'])  
         print("Message from", event['user'], " - ", self.userList[event['user']]['name'], event['text'])
+    self.load()
 
     def MyLevel(self, event):
         level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] #the score at the time of the message 
@@ -51,6 +62,7 @@ class IdleRpgBot():
                 channel="#bot_playground",
                 text=text
                 )
+    self.load()
 
     def connect(self):
         if self.sc.rtm_connect(): #connect to slack 
@@ -90,3 +102,4 @@ class IdleRpgBot():
                 time.sleep(1)
         else:
             print("Connection Failed")
+    self.load()
