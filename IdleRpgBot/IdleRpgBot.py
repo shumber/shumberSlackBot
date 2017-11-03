@@ -5,6 +5,7 @@ import logging
 import pickle
 import copy
 
+READ_EVENT_PAUSE = .1
 class IdleRpgBot():
     def __init__(self, slack_token, active_channel_name, db_filename = "users.db"):
         self.slack_token = slack_token
@@ -12,67 +13,63 @@ class IdleRpgBot():
         self.sc = SlackClient(slack_token)
         self.userList = {}
         self.fb_filename = db_filename
-
+        self.userListOld ={}
         self.load()
 
     def save(self):
         current_users = copy.deepcopy(self.userList)
-        with open((self.fb_filename), 'wb') as db_file:
+        with open(self.fb_filename, 'wb') as db_file:
             pickle.dump(current_users, db_file, protocol=pickle.HIGHEST_PROTOCOL)
     
     def load(self):
         if os.path.isfile(self.fb_filename):
             with open(self.fb_filename, 'rb') as db_file:
-                self.usersList = pickle.load(db_file)
+                self.usersListOld = pickle.load(db_file)
 
     def handlePresenceChange(self, event, user): #Log the users score as they enter and leave the chat
         if event['presence'] == 'active':
-            print("Status Active for ", event['user'], " - ", self.userList[event['user']]['name'])
+            print("Status Active for ", event['user'], " - ", self.userListOld[event['user']]['total'])
             self.userList[event['user']]['active'] = time.time()
-            self.userList[user['id']]['activeFlag'] = 1
-            self.save()
+            self.userList[user['id']]['activeFlag'] = 1  
         if event['presence'] == 'away':
             print("Status Away for ", event['user'], " - ", self.userList[event['user']]['name'])
             self.userList[event['user']]['away'] = time.time()
             self.userList[user['id']]['activeFlag'] = 0
-            self.userList[event['user']]['total'] = self.userList[event['user']]['total'] + (self.userList[event['user']]['away'] - self.userList[event['user']]['active'])
-            self.save()
-       
+            self.userList[event['user']]['total'] = self.userListOld[user['id']]['total']+(self.userList[event['user']]['away'] - self.userList[event['user']]['active'])       
 
     def handlemessage(self, event):
         print(event)
         con="The Parties score for:"
         for key, value in self.userList.items():
+            total= value['total']
             if value['isBot'] == 0:
                 if value['activeFlag'] == 1:
-                    level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] #the score at the time of the message 
-                else: 
-                    level = value['total']
+                    level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] + self.userListOld[user['id']]['total']
+                    self.userList[event['user']]['total'] = level #the score at the time of the message 
                 con +=("\n "+ value['name']+ " is " +str(int(level)))
         self.sc.api_call(
             "chat.postMessage", 
             channel="#bot_playground",
             text=con
             ) ##Sumting the score and message
+        self.save()
         print(event['text'])  
         print("Message from", event['user'], " - ", self.userList[event['user']]['name'], event['text'])
-        self.save()
 
     def MyLevel(self, event):
-        level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] #the score at the time of the message 
+        level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] + self.userListOld[user['id']]['total'] #the score at the time of the message 
         text=(self.userList[event['user']]['name']+ " your score is " +str(int(level)))
-        self.load()
+        self.userList[event['user']]['total'] = total
         self.sc.api_call(
                 "chat.postMessage", 
                 channel="#bot_playground",
                 text=text
                 )
-        self.save()
 
     def connect(self):
         if self.sc.rtm_connect(): #connect to slack 
             api_call = self.sc.api_call("users.list", presence="true")
-            users = api_call.get('members')
+            users = api_call.get('members') 
             ##greeting="Here we go" ##Nice to meet you. Type Score to see your RPG total
             ##sc.api_call("chat.postMessage", channel="#bot_playground", text=greeting, )
             for user in users:
@@ -92,7 +89,6 @@ class IdleRpgBot():
                                 self.userList[user['id']]['activeFlag'] = 1  
             while True:
                 events = self.sc.rtm_read()
-                print(events)
                 for event in events:
                     if event['type'] == "presence_change":
                         print("Activity")
@@ -104,7 +100,7 @@ class IdleRpgBot():
                             print("Message Sent")
                         if event['text'] =="MyLevel":
                             self.MyLevel(event)
-                time.sleep(1)
+                time.sleep(READ_EVENT_PAUSE)
+            self.save(READ_EVENT_PAUS)
         else:
             print("Connection Failed")
-            self.save()
