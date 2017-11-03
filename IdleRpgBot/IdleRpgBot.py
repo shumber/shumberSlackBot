@@ -28,7 +28,7 @@ class IdleRpgBot():
 
     def handlePresenceChange(self, event, user): #Log the users score as they enter and leave the chat
         if event['presence'] == 'active':
-            print("Status Active for ", event['user'], " - ", self.userListOld[event['user']]['total'])
+            print("Status Active for ", event['user'], " - ", self.userList[event['user']]['total'])
             self.userList[event['user']]['active'] = time.time()
             self.userList[user['id']]['activeFlag'] = 1  
         if event['presence'] == 'away':
@@ -52,7 +52,6 @@ class IdleRpgBot():
             channel="#bot_playground",
             text=con
             ) ##Sumting the score and message
-        self.save()
         print(event['text'])  
         print("Message from", event['user'], " - ", self.userList[event['user']]['name'], event['text'])
 
@@ -93,14 +92,19 @@ class IdleRpgBot():
                     if event['type'] == "presence_change":
                         print("Activity")
                         self.handlePresenceChange(event, user)
+                        self.save()
                     elif event['type'] == "message":
                         print("Message Recived")
                         if event['text'] == "TheScore":
                             self.handlemessage(event)
                             print("Message Sent")
+                            self.save()
                         if event['text'] =="MyLevel":
                             self.MyLevel(event)
+                            self.save()
                 time.sleep(READ_EVENT_PAUSE)
-            self.save(READ_EVENT_PAUS)
+                self.save()
         else:
             print("Connection Failed")
+        
+   
