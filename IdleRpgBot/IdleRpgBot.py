@@ -35,7 +35,7 @@ class IdleRpgBot():
             print("Status Away for ", event['user'], " - ", self.userList[event['user']]['name'])
             self.userList[event['user']]['away'] = time.time()
             self.userList[user['id']]['activeFlag'] = 0
-            self.userList[event['user']]['total'] = self.userListOld[user['id']]['total']+(self.userList[event['user']]['away'] - self.userList[event['user']]['active'])       
+            self.userList[event['user']]['total'] = self.userListOld[event['user']]['total']+(self.userList[event['user']]['away'] - self.userList[event['user']]['active'])       
 
     def handlemessage(self, event):
         print(event)
@@ -44,7 +44,7 @@ class IdleRpgBot():
             total= value['total']
             if value['isBot'] == 0:
                 if value['activeFlag'] == 1:
-                    level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] + self.userListOld[user['id']]['total']
+                    level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] + self.userListOld[event['user']]['total']
                     self.userList[event['user']]['total'] = level #the score at the time of the message 
                 con +=("\n "+ value['name']+ " is " +str(int(level)))
         self.sc.api_call(
@@ -56,7 +56,7 @@ class IdleRpgBot():
         print("Message from", event['user'], " - ", self.userList[event['user']]['name'], event['text'])
 
     def MyLevel(self, event):
-        level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] + self.userListOld[user['id']]['total'] #the score at the time of the message 
+        level = time.time() - self.userList[event['user']]['active'] + self.userList[event['user']]['total'] + self.userListOld[event['user']]['total'] #the score at the time of the message 
         text=(self.userList[event['user']]['name']+ " your score is " +str(int(level)))
         self.userList[event['user']]['total'] = total
         self.sc.api_call(
