@@ -4,6 +4,7 @@ import logging
 from dotenv import load_dotenv
 
 def main():
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
     load_dotenv('.env')
     slack_token = os.environ["SLACK_API_TOKEN"]
     active_channel_name="#bot_playground"

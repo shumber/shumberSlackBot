@@ -4,6 +4,7 @@ from slackclient import SlackClient
 import logging
 import pickle
 import copy
+import logging
 
 READ_EVENT_PAUSE = .1
 class IdleRpgBot():
@@ -17,11 +18,13 @@ class IdleRpgBot():
         self.load()
 
     def save(self):
+        logging.debug('Recieved event: Save')
         current_users = copy.deepcopy(self.userList)
         with open(self.fb_filename, 'wb') as db_file:
             pickle.dump(current_users, db_file, protocol=pickle.HIGHEST_PROTOCOL)
     
     def load(self):
+        logging.debug('Recieved event: load')
         if os.path.isfile(self.fb_filename):
             with open(self.fb_filename, 'rb') as db_file:
                 self.usersListOld = pickle.load(db_file)
@@ -92,16 +95,16 @@ class IdleRpgBot():
                     if event['type'] == "presence_change":
                         print("Activity")
                         self.handlePresenceChange(event, user)
-                        self.save()
+                        #self.save()
                     elif event['type'] == "message":
                         print("Message Recived")
                         if event['text'] == "TheScore":
                             self.handlemessage(event)
                             print("Message Sent")
-                            self.save()
+                            #self.save()
                         if event['text'] =="MyLevel":
                             self.MyLevel(event)
-                            self.save()
+                            #self.save()
                 time.sleep(READ_EVENT_PAUSE)
                 self.save()
         else:
